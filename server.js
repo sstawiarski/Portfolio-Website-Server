@@ -48,7 +48,11 @@ const ProjectSchema = new mongoose.Schema(
 const Project = mongoose.model('Project', ProjectSchema);
 
 function connectDb() {
-    return mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true });
+    return mongoose.connect(process.env.DATABASE_URL, { 
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true
+     });
 }
 
 connectDb().catch(err => console.log(err));
@@ -60,10 +64,6 @@ db.once('open', () => console.log('connected to database'))
 
 app.use(cors());
 app.listen(port, () => console.log(`Backend server live on ${port}.`));
-
-app.get("/", (req, res) => {
-    res.send({ message: "We did it!" });
-});
 
 app.get("/github", async function (req, res, next) {
     const projects = await Project.find();
@@ -80,7 +80,7 @@ app.get('/seed', async function (req, res) {
     })
 
     function getData() {
-        return fetch('https://api.github.com/users/sstawiarski/repos');
+        return fetch(process.env.GITHUB_API_CALL);
     }
 
     const processData = async () => {
@@ -121,8 +121,8 @@ app.post("/sendEmail", (req, res) => {
         host: 'smtp-relay.sendinblue.com',
         port: 587,
         auth: {
-           user: process.env.SMTP_USER,
-           pass: process.env.SMTP_PASS
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
         }
     });
     console.log(req.body);
@@ -136,11 +136,11 @@ app.post("/sendEmail", (req, res) => {
         html: `<p>${formInfo.message}</p>`
     };
 
-    transport.sendMail(message, function(err, info) {
+    transport.sendMail(message, function (err, info) {
         if (err) {
-          console.log(err)
+            console.log(err)
         } else {
-          console.log(info);
+            console.log(info);
         }
     });
 
