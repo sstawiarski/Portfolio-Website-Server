@@ -1,0 +1,5 @@
+# Ignore secret API keys
+.env
+
+# Ignore node modules
+/node_modules
